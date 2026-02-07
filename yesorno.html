@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Will You Be My Valentine? 💖</title>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      min-height: 100vh;
+      height: 100%;
+      background: linear-gradient(135deg, #ffd6e8, #ff9ebc);
+      background-attachment: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* FLOATING HEARTS BACKGROUND */
+    .heart {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 20px;
+      animation: float-up 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes float-up {
+      0% { 
+        transform: translateY(100vh) rotate(0deg); 
+        opacity: 0; 
+      }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { 
+        transform: translateY(-20vh) rotate(360deg); 
+        opacity: 0; 
+      }
+    }
+
+    /* STAGE CONTAINER */
+    .stage {
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .stage.active {
+      opacity: 1;
+    }
+
+    .stage.hidden {
+      display: none;
+    }
+
+    /* STAGE 1: QUESTION */
+    .question-content {
+      text-align: center;
+    }
+
+    .gif-container {
+      width: 100%;
+      max-width: 320px;
+      height: 320px;
+      margin: 0 auto 30px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gif-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gif-placeholder {
+      font-size: 4rem;
+      opacity: 0.5;
+      color: #ff4d88;
+    }
+
+    h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(2rem, 6vw, 2.5rem);
+      color: #b0004f;
+      margin-bottom: 40px;
+      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100px;
+      position: relative;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: all 0.4s ease;
+    }
+
+    .buttons.no-hidden {
+      /* When No is hidden, Yes naturally centers */
+    }
+
+    button {
+      padding: 18px 50px;
+      border-radius: 50px;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Quicksand', sans-serif;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    #yesBtn {
+      background: linear-gradient(135deg, #ff4d88, #ff6b9d);
+      color: white;
+      position: relative;
+      z-index: 20;
+      transition: all 0.4s ease;
+    }
+
+    #yesBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 35px rgba(255, 77, 136, 0.6);
+    }
+
+    #yesBtn.pulse {
+      animation: pulse-yes 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-yes {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    #noBtn {
+      background: white;
+      color: #ff4d88;
+      border: 2px solid #ff4d88;
+      position: relative;
+      z-index: 15;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #noBtn.floating {
+      position: fixed !important;
+      opacity: 1;
+    }
+
+    #noBtn.hiding {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    .hint-text {
+      margin-top: 20px;
+      color: #b0004f;
+      font-size: 1rem;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      font-weight: 500;
+    }
+
+    .hint-text.show {
+      opacity: 1;
+    }
+
+    /* STAGE 2: TRANSITION */
+    .transition-text {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(2.5rem, 8vw, 3.5rem);
+      color: #b0004f;
+      margin-bottom: 30px;
+      animation: scale-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes scale-in {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .transition-heart {
+      font-size: 5rem;
+      animation: pulse-heart 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-heart {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* STAGE 3: ENVELOPE */
+    .envelope-label {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      color: #b0004f;
+      margin-bottom: 30px;
+    }
+
+    .envelope {
+      width: 280px;
+      height: 180px;
+      background: #fff;
+      margin: 0 auto 30px;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+      animation: drop-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      transition: transform 0.3s ease;
+    }
+
+    @keyframes drop-in {
+      0% {
+        transform: translateY(-200px) rotate(-10deg);
+        opacity: 0;
+      }
+      60% {
+        transform: translateY(20px) rotate(3deg);
+      }
+      80% {
+        transform: translateY(-10px) rotate(-2deg);
+      }
+      100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .envelope:hover {
+      transform: scale(1.02);
+    }
+
+    .envelope::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #ffd1dc, #ffb3c6);
+      clip-path: polygon(0 0, 100% 0, 50% 60%);
+      border-radius: 12px 12px 0 0;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: top center;
+    }
+
+    .envelope.opening::before {
+      transform: rotateX(180deg);
+    }
+
+    .envelope-glow {
+      position: absolute;
+      inset: -8px;
+      background: radial-gradient(circle, rgba(255, 77, 136, 0.4), transparent);
+      border-radius: 16px;
+      animation: pulse-glow 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.05); }
+    }
+
+    .envelope-hint {
+      color: #b0004f;
+      font-size: 0.95rem;
+      margin-top: 20px;
+    }
+
+    /* STAGE 4: LETTER */
+    .letter {
+      max-width: 500px;
+      background: #fff;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+      margin: 0 auto;
+      text-align: left;
+      position: relative;
+      animation: slide-up 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes slide-up {
+      0% {
+        transform: translateY(100px) scale(0.9);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .letter-content {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      line-height: 2;
+      color: #b0004f;
+      white-space: pre-line;
+    }
+
+    .letter-content strong {
+      color: #d6006b;
+      font-size: 1.5rem;
+    }
+
+    .continue-btn {
+      margin-top: 30px;
+      background: linear-gradient(135deg, #ff4d88, #ff6b9d);
+      color: white;
+      display: block;
+      width: 100%;
+    }
+
+    .heart-burst {
+      position: absolute;
+      font-size: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .heart-burst.active {
+      animation: burst 1.5s ease-out forwards;
+    }
+
+    @keyframes burst {
+      0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* STAGE 5: FINALE */
+    .finale {
+      text-align: center;
+    }
+
+    .finale-heart {
+      font-size: 8rem;
+      animation: finale-pulse 2s ease-in-out infinite;
+      display: inline-block;
+      margin-bottom: 30px;
+    }
+
+    @keyframes finale-pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.2) rotate(10deg); }
+    }
+
+    .finale-text {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(2rem, 7vw, 3rem);
+      color: #b0004f;
+      margin-bottom: 20px;
+      text-shadow: 3px 3px 6px rgba(255, 255, 255, 0.5);
+    }
+
+    .finale-subtitle {
+      font-size: 1.5rem;
+      color: #ff4d88;
+      font-weight: 600;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 480px) {
+      .gif-container {
+        max-width: 260px;
+        height: 260px;
+      }
+      
+      button {
+        padding: 16px 40px;
+        font-size: 1.1rem;
+      }
+
+      .envelope {
+        width: 240px;
+        height: 160px;
+      }
+
+      .letter {
+        padding: 30px;
+      }
+
+      .letter-content {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .gif-container {
+        max-width: 220px;
+        height: 220px;
+      }
+
+      button {
+        padding: 14px 35px;
+        font-size: 1rem;
+      }
+
+      .envelope {
+        width: 200px;
+        height: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Hearts Background -->
+  <div id="heartsContainer"></div>
+
+  <div class="container">
+    
+    <!-- STAGE 1: QUESTION -->
+    <div id="questionStage" class="stage active">
+      <div class="question-content">
+        <div class="gif-container">
+          <div class="gif-placeholder">💕</div>
+          <img id="gifImage" style="display: none;" alt="Valentine GIF">
+        </div>
+
+        <h1>Will you be my Valentine? 💖</h1>
+        
+        <div class="buttons-container">
+          <div class="buttons" id="buttonsWrapper">
+            <button id="yesBtn">Yes 💕</button>
+            <button id="noBtn">No 🙈</button>
+          </div>
+        </div>
+
+        <p class="hint-text" id="hintText">Looks like "Yes" is your only option 😌</p>
+      </div>
+    </div>
+
+    <!-- STAGE 2: TRANSITION -->
+    <div id="transitionStage" class="stage hidden">
+      <h1 class="transition-text">I knew it 😌💘</h1>
+      <div class="transition-heart">💖</div>
+    </div>
+
+    <!-- STAGE 3: ENVELOPE -->
+    <div id="envelopeStage" class="stage hidden">
+      <p class="envelope-label">You've got a letter 💌</p>
+      
+      <div style="position: relative; display: inline-block;">
+        <div class="envelope-glow"></div>
+        <div class="envelope" id="envelope"></div>
+      </div>
+
+      <p class="envelope-hint">Click to open 👆</p>
+    </div>
+
+    <!-- STAGE 4: LETTER -->
+    <div id="letterStage" class="stage hidden">
+      <div class="letter">
+        <div class="letter-content" id="letterText"></div>
+        <button class="continue-btn" id="continueBtn">Continue 💕</button>
+      </div>
+    </div>
+
+    <!-- STAGE 5: FINALE -->
+    <div id="finaleStage" class="stage hidden finale">
+      <div class="finale-heart">💖</div>
+      <h1 class="finale-text">You're my everything</h1>
+    </div>
+
+  </div>
+
+  <script>
+    // ========== CONFIGURATION ==========
+    const gifFolder = "gifs/";
+    const gifCount = 30; // GIFs numbered 1-40
+    let currentGifIndex = 0; // Start at 0.gif (the happy one)
+    let gifFiles = ['0.gif']; // Start with the happy GIF
+    let hasClickedNo = false; // Track if No has been clicked
+
+    // Generate GIF filenames for the loop (1.gif to 40.gif)
+    let loopGifs = [];
+    for (let i = 1; i <= gifCount; i++) {
+      loopGifs.push(`${i}.gif`);
+    }
+
+    // "No" button messages
+    const noMessages = [
+      "No 🙈", "Try again 💕", "Almost! 😅", "Nope! 😂", "Come on... 💖",
+      "Not working! 🙈", "So close! 😋", "Keep trying 💗", "Wrong button! 😆",
+      "Really? 🤭", "Nice try! 😏", "Think again! 😊", "Are you sure? 💕",
+      "Oh no! 😱", "Getting warmer 🔥", "Not quite! 😉", "Please? 🥺",
+      "Pretty please? 💖", "Just say yes 😌", "You know you want to 💗",
+      "I'm waiting... ⏰", "Be mine! 💘", "Catch me! 🏃", "Too slow! 🐌"
+    ];
+
+    // Letter message
+    const letterMessage = `Hey my princess 💕
+
+I love you more than words can explain.
+I hope this little surprise made you smile 😁
+I'm so grateful to have you in my life—
+my happiness, my comfort, my favorite person.
+
+Forever your Valentine 💘`;
+
+    // ========== DOM ELEMENTS ==========
+    const heartsContainer = document.getElementById('heartsContainer');
+    const questionStage = document.getElementById('questionStage');
+    const transitionStage = document.getElementById('transitionStage');
+    const envelopeStage = document.getElementById('envelopeStage');
+    const letterStage = document.getElementById('letterStage');
+    const finaleStage = document.getElementById('finaleStage');
+
+    const gifImage = document.getElementById('gifImage');
+    const gifPlaceholder = document.querySelector('.gif-placeholder');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const buttonsWrapper = document.getElementById('buttonsWrapper');
+    const hintText = document.getElementById('hintText');
+    const envelope = document.getElementById('envelope');
+    const letterText = document.getElementById('letterText');
+    const continueBtn = document.getElementById('continueBtn');
+
+    // ========== STATE ==========
+    let noAttempts = 0;
+    let hasTriedNo = false;
+    let currentStage = 'question';
+    let envelopeOpened = false;
+    let noButtonFloating = false;
+
+    // ========== FLOATING HEARTS ==========
+    function createFloatingHearts(count = 15) {
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = ['💖', '💕', '💗', '💝'][Math.floor(Math.random() * 4)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDelay = Math.random() * 8 + 's';
+        heart.style.fontSize = (Math.random() * 10 + 15) + 'px';
+        heartsContainer.appendChild(heart);
+      }
+    }
+
+    createFloatingHearts();
+
+    // ========== GIF LOADING ==========
+    function loadGif(gifFileName) {
+      if (gifFileName) {
+        const gifPath = gifFolder + gifFileName;
+        gifImage.src = gifPath;
+        gifImage.style.display = 'block';
+        gifPlaceholder.style.display = 'none';
+        
+        gifImage.onerror = function() {
+          gifImage.style.display = 'none';
+          gifPlaceholder.style.display = 'flex';
+        };
+      }
+    }
+
+    // Load the initial happy GIF (0.gif)
+    loadGif('0.gif');
+
+    // ========== NO BUTTON MECHANICS - THE ELEGANT CONCEPT ==========
+    function moveNoButton() {
+      // First interaction - make No float and show hint
+      if (!hasTriedNo) {
+        hasTriedNo = true;
+        noButtonFloating = true;
+        
+        // Remove No from the layout flow
+        noBtn.classList.add('floating');
+        
+        // Show hint after a moment
+        setTimeout(() => {
+          hintText.classList.add('show');
+        }, 500);
+        
+        // Make Yes pulse to draw attention
+        yesBtn.classList.add('pulse');
+      }
+
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+      const btnWidth = noBtn.offsetWidth;
+      const btnHeight = noBtn.offsetHeight;
+
+      // Safe zones for No button
+      const maxX = windowWidth - btnWidth - 20;
+      const maxY = windowHeight - btnHeight - 20;
+      const minX = 20;
+      const minY = 20;
+
+      // Random position
+      const randomX = Math.random() * (maxX - minX) + minX;
+      const randomY = Math.random() * (maxY - minY) + minY;
+      
+      noBtn.style.left = randomX + 'px';
+      noBtn.style.top = randomY + 'px';
+      noBtn.textContent = noMessages[noAttempts % noMessages.length];
+      
+      // Change GIF - Start from 1.gif and loop through 1-40, never back to 0.gif
+      if (!hasClickedNo) {
+        // First click on No - start the loop at 1.gif
+        hasClickedNo = true;
+        currentGifIndex = 0; // Start at index 0 of loopGifs (which is 1.gif)
+        loadGif(loopGifs[currentGifIndex]);
+      } else {
+        // Subsequent clicks - continue looping through 1-40
+        currentGifIndex = (currentGifIndex + 1) % loopGifs.length;
+        loadGif(loopGifs[currentGifIndex]);
+      }
+      
+      noAttempts++;
+
+      // Vibrate feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
+
+    // Event listeners for No button
+    noBtn.addEventListener('mouseenter', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    // ========== STAGE TRANSITIONS ==========
+    function switchStage(fromStage, toStage, delay = 0) {
+      setTimeout(() => {
+        fromStage.classList.remove('active');
+        setTimeout(() => {
+          fromStage.classList.add('hidden');
+          toStage.classList.remove('hidden');
+          setTimeout(() => {
+            toStage.classList.add('active');
+          }, 50);
+        }, 500);
+      }, delay);
+    }
+
+    // ========== YES BUTTON ==========
+    yesBtn.addEventListener('click', () => {
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
+      
+      switchStage(questionStage, transitionStage);
+      
+      // Auto-transition to envelope after 1.5 seconds
+      setTimeout(() => {
+        switchStage(transitionStage, envelopeStage);
+      }, 1500);
+    });
+
+    // ========== ENVELOPE CLICK ==========
+    envelope.addEventListener('click', () => {
+      if (envelopeOpened) return;
+      envelopeOpened = true;
+
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100]);
+      }
+
+      envelope.classList.add('opening');
+
+      // Create heart burst
+      setTimeout(() => {
+        createHeartBurst(envelope);
+      }, 300);
+
+      // Create more floating hearts
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.innerHTML = '💕';
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.animationDelay = '0s';
+          heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+          heartsContainer.appendChild(heart);
+        }, i * 80);
+      }
+
+      // Switch to letter stage
+      setTimeout(() => {
+        switchStage(envelopeStage, letterStage);
+        
+        // Start typewriter effect
+        setTimeout(() => {
+          typewriterEffect(letterMessage, letterText, 30);
+        }, 500);
+      }, 1000);
+    });
+
+    // ========== HEART BURST ==========
+    function createHeartBurst(element) {
+      const rect = element.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 25; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart-burst';
+        heart.innerHTML = ['💖', '💕', '💗'][Math.floor(Math.random() * 3)];
+        heart.style.left = centerX + 'px';
+        heart.style.top = centerY + 'px';
+        
+        const angle = (Math.PI * 2 * i) / 25;
+        const velocity = 80 + Math.random() * 120;
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        
+        heart.style.setProperty('--tx', tx + 'px');
+        heart.style.setProperty('--ty', ty + 'px');
+        
+        document.body.appendChild(heart);
+        
+        setTimeout(() => heart.classList.add('active'), 10);
+        setTimeout(() => heart.remove(), 1500);
+      }
+    }
+
+    // ========== TYPEWRITER EFFECT ==========
+    function typewriterEffect(text, element, speed = 30) {
+      let index = 0;
+      element.textContent = '';
+      
+      function type() {
+        if (index < text.length) {
+          element.textContent += text[index];
+          index++;
+          setTimeout(type, speed);
+        }
+      }
+      
+      type();
+    }
+
+    // ========== CONTINUE BUTTON ==========
+    continueBtn.addEventListener('click', () => {
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
+      }
+
+      // Create massive heart explosion
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.innerHTML = ['💖', '💕', '💗', '💝'][Math.floor(Math.random() * 4)];
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.fontSize = (Math.random() * 25 + 20) + 'px';
+          heart.style.animationDuration = (Math.random() * 4 + 4) + 's';
+          heart.style.animationDelay = '0s';
+          heartsContainer.appendChild(heart);
+        }, i * 30);
+      }
+
+      switchStage(letterStage, finaleStage);
+    });
+  </script>
+
+</body>
+</html>
